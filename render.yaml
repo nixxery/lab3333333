@@ -1,0 +1,27 @@
+# Use the official Python image as the base image
+# Choose a version that matches your application's runtime
+# You can also use your own custom image here
+# See https://hub.docker.com/_/python for more options
+from: python:3.9-slim
+
+# Add your application code to the image
+copy:
+  - ./
+
+# Set the working directory to the app directory
+workdir: /app
+
+# Install dependencies
+# You can also use a requirements.txt file instead
+# See https://pip.pypa.io/en/stable/user_guide/#requirements-files for more options
+command:
+  - apt-get update && apt-get install -y libcairo2-dev
+  - pip install -r requirements.txt
+
+# Start the application
+# This command will vary depending on your application's structure and runtime
+# In this example, we assume the main file is named "app.py" and is in the app directory
+# You may need to adjust this command for your specific use case
+start:
+  command: python app.py
+  dev_command: FLASK_APP=app.py FLASK_ENV=development flask run --host 0.0.0.0 --port $PORT

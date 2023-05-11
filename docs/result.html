@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>результат епта</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Result</h1>
+    <h2>Original Image: {{ orig }}</h2>
+    <img src="{{ url_for('uploaded_file', filename='orig.png') }}" alt="Original Image">
+    <h2>Contrast-Adjusted Image</h2>
+    <img src="{{ url_for('uploaded_file', filename='contrasted.png') }}" alt="Contrast-Adjusted Image">
+    <h2>Color Distribution</h2>
+    <img src="{{ url_for('uploaded_file', filename='plot.png') }}" alt="Color Distribution">
+    <button onclick="history.back()">Go back</button>
+</body>
+</html>
