@@ -2,23 +2,18 @@
 <html>
 <head>
     <title>Результат</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        img {
-            max-width: 100%;
-            height: auto;
-        }
-    </style>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 </head>
-<body>
-    <h1>Результатб</h1>
-    <button onclick="history.back()" style="background-color: gold; margin-left: 400px">fuck, go back</button>
-    <h2>Original Image: {{ orig }}</h2>
-    <img src="{{ url_for('uploaded_file', filename='orig.png') }}" alt="Original Image">
-    <h2>Contrast-Adjusted Image</h2>
-    <img src="{{ url_for('uploaded_file', filename='contrasted.png') }}" alt="Contrast-Adjusted Image">
-    <h2>Color Distribution</h2>
-    <img src="{{ url_for('uploaded_file', filename='plot.png') }}" alt="Color Distribution">
+<body style="background-color: cyan; text-align: center; padding: 100px;">
+    <h1>Результат</h1>
+    <div>
+        <img src="{{ url_for('uploaded_file', filename=merged) }}" alt="Merged Image">
+    </div>
+    <h2>Графики</h2>
+    <div>
+        <img src="{{ url_for('uploaded_file', filename=plot) }}" alt="Color Distribution Image 1">
+    </div>
+    </div>
 </body>
 </html>
