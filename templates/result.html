@@ -1,19 +1,65 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Результат</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-</head>
-<body style="background-color: cyan; text-align: center; padding: 100px;">
-    <h1>Результат</h1>
-    <div>
-        <img src="{{ url_for('uploaded_file', filename=merged) }}" alt="Merged Image">
-    </div>
-    <h2>Графики</h2>
-    <div>
-        <img src="{{ url_for('uploaded_file', filename=plot) }}" alt="Color Distribution Image 1">
-    </div>
-    </div>
-</body>
+    <head>
+        <title>Результат</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+              integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+                integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+                crossorigin="anonymous"></script>
+    </head>
+    <body style="background-color: cyan; text-align: center; padding: 100px;">
+        <center>
+            <div class="container-fluid center">
+                <h2>Первое изображение</h2>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card  border-primary" style="width: 18rem;">
+                            <img src="{{ url_for('uploaded_file', filename='orig1.png') }}" alt="Original Image 1" class="card-img-top">
+                            <div class="card-body">
+                                <p class="card-text">Исходное изображение</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card  border-primary" style="width: 18rem;">
+                            <img src="{{ url_for('uploaded_file', filename='plot1.png') }}" alt="Color Distribution - Image 1" class="card-img-top">
+                            <div class="card-body">
+                                <p class="card-text">Распределение цветов для первого изображения</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h2>Второе изображение</h2>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card  border-primary" style="width: 18rem;">
+                            <img src="{{ url_for('uploaded_file', filename='orig2.png') }}" alt="Original Image 1" class="card-img-top">
+                            <div class="card-body">
+                                <p class="card-text">Исходное изображение</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card  border-primary" style="width: 18rem;">
+                            <img src="{{ url_for('uploaded_file', filename='plot2.png') }}" alt="Color Distribution - Image 1" class="card-img-top">
+                            <div class="card-body">
+                                <p class="card-text">Распределение цветов для второго изображения</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </center>
+        <br>
+        <h2>Результат соединения фотографий</h2>
+        <div>
+            <img src="{{ url_for('uploaded_file', filename='merged.png') }}" alt="Merged Image" class="card-img-top">
+        </div>
+        <br>
+        <h2>Распределение цветов для соединенного изображения</h2>
+        <div>
+            <img src="{{ url_for('uploaded_file', filename='plot_merged.png') }}" alt="Color Distribution - Merged Image">
+        </div>
+    </body>
 </html>
