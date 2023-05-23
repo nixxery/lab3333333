@@ -1,17 +1,15 @@
 from flask import Flask, render_template, request, abort, send_from_directory
 import matplotlib.pyplot as plt
 import numpy as np
-import requests
 from PIL import Image
 import os
-import base64
+import io
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024  # 1 MB limit for uploaded files
 UPLOAD_FOLDER = './uploads'  # folder for uploaded files
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-RECAPTCHA_SITE_KEY = '6LcZaf8lAAAAAP7VmVPopieoDDN-xoCapufM03BS'
-
 
 # Image merging endpoint
 @app.route('/merge', methods=['POST'])
@@ -30,17 +28,12 @@ def merge():
             ('.png', '.jpg', '.jpeg', '.gif')):
         abort(400, 'One or both files are not images')
 
-     # Verify the captcha
-    recaptcha_response = request.form.get('g-recaptcha-response')
-    if not recaptcha_response:
-        abort(400, 'reCAPTCHA verification failed')
-    payload = {
-        'secret': '6LcZaf8lAAAAAP395pmCF33ej4pr3mtdttF58CJH',
-        'response': recaptcha_response
-    }
-    response = requests.post('https://www.google.com/recaptcha/api/siteverify', payload).json()
-    if not response['success']:
-        abort(400, 'reCAPTCHA verification failed')
+    # Save the uploaded files as orig1.png and orig2.png
+    orig1_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'orig1.png')
+    orig2_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'orig2.png')
+    file1.save(orig1_filename)
+    file2.save(orig2_filename)
+
     # Load the images
     img1 = Image.open(file1)
     img2 = Image.open(file2)
@@ -57,51 +50,63 @@ def merge():
     else:
         abort(400, 'Invalid merge type')
 
-    # Save the merged image to a file
+    # Save the merged image
     merged_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'merged.png')
     merged_img.save(merged_filename)
 
-    # Calculate color distributions of original images and merged image
-    colors1 = get_color_distribution(img1)
-    colors2 = get_color_distribution(img2)
-    merged_colors = get_color_distribution(merged_img)
+    # Calculate and save color distribution plots
+    plot1_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'plot1.png')
+    plot2_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'plot2.png')
+    plot_merged_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'plot_merged.png')
 
-    # Plot color distributions as bar graphs
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
-    fig.suptitle('Color Distribution')
-    plot_color_distribution(ax1, colors1, 'Original Image 1')
-    plot_color_distribution(ax2, colors2, 'Original Image 2')
-    plot_color_distribution(ax3, merged_colors, 'Merged Image')
-    plt.tight_layout()
+    plot_color_distribution(img1, plot1_filename)
+    plot_color_distribution(img2, plot2_filename)
+    plot_color_distribution(merged_img, plot_merged_filename)
+
+    return render_template('result.html', merged=merged_filename, plot1=plot1_filename, plot2=plot2_filename,
+                           plot_merged=plot_merged_filename, orig1=orig1_filename, orig2=orig2_filename)
+
+
+def plot_color_distribution(image, plot_filename):
+    # Convert the image to numpy array
+    img_array = np.array(image)
+
+    # Calculate the color distribution for each channel separately
+    color_dist_r, _ = np.histogram(img_array[..., 0].flatten(), bins=256, range=(0, 255))
+    color_dist_g, _ = np.histogram(img_array[..., 1].flatten(), bins=256, range=(0, 255))
+    color_dist_b, _ = np.histogram(img_array[..., 2].flatten(), bins=256, range=(0, 255))
+
+    # Normalize the color distribution
+    color_dist_normalized_r = color_dist_r / np.sum(color_dist_r)
+    color_dist_normalized_g = color_dist_g / np.sum(color_dist_g)
+    color_dist_normalized_b = color_dist_b / np.sum(color_dist_b)
+
+    # Create the color distribution plot
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.plot(color_dist_normalized_r, color='red', label='Red')
+    ax.plot(color_dist_normalized_g, color='green', label='Green')
+    ax.plot(color_dist_normalized_b, color='blue', label='Blue')
+
+    # Set the plot title and labels
+    ax.set_title('Color Distribution')
+    ax.set_xlabel('Pixel Value')
+    ax.set_ylabel('Normalized Frequency')
+
+    # Add a legend
+    ax.legend()
 
     # Save the plot to a file
-    plot_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'plot.png')
-    plt.savefig(plot_filename)
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png')
+    buf.seek(0)
 
-    # Render the result page
-    merged_filename = os.path.basename(merged_filename)  # get just the filename from the path
-    plot_filename = os.path.basename(plot_filename)
-    return render_template('result.html', merged=merged_filename, plot=plot_filename)
-
-
-# Utility function to get color distribution of an image
-def get_color_distribution(img):
-    colors = img.getcolors(img.size[0] * img.size[1])
-    return sorted(colors, key=lambda x: x[0], reverse=True)[:10]
+    with open(plot_filename, 'wb') as file:
+        file.write(buf.getvalue())
 
 
-# Utility function to plot color distribution as a bar graph
-def plot_color_distribution(ax, colors, title):
-    ax.bar(np.arange(len(colors)), [c[0] / 255 for c in colors], color=[tuple(np.array(c[1]) / 255) for c in colors])
-    ax.set_xticks(np.arange(len(colors)))
-    ax.set_xticklabels([c[1] for c in colors], rotation=45)
-    ax.set_title(title)
-
-
-# Home page
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html', sitekey=RECAPTCHA_SITE_KEY)
+    return render_template('index.html')
 
 
 @app.route('/uploads/<filename>')
